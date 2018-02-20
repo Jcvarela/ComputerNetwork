@@ -13,7 +13,7 @@ public class Run {
             startServer();
         }catch(IOException e){
             System.out.println("Error: trying to open port: " + SOCKET_NUMBER);
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -22,6 +22,7 @@ public class Run {
         ServerSocket welcomeSocket = new ServerSocket(SOCKET_NUMBER);
 
         while (true) {
+            System.out.println("HI");
             //wait, on welcoming socket for contact by client
             Socket connectionSocket = welcomeSocket.accept();
 
