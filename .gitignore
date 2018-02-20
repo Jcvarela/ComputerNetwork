@@ -24,4 +24,4 @@ hs_err_pid*
 
 #ignore intellij
 .idea
-ComputerNetwork.iml
+*.iml
