@@ -2,10 +2,12 @@ import com.sun.org.apache.xpath.internal.SourceTree;
 
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
 
 public class run {
 
     public static final int SOCKET_PORT = 6789;
+    public static final String HOST_NAME = "127.0.0.1";
     public static void main(String[] args) {
         try {
             startClient();
@@ -16,36 +18,22 @@ public class run {
     }
 
     public static void startClient()throws IOException{
-        String hostName = "hostname";
-
-        //Create input stream
-        BufferedReader inFromUser
-                = new BufferedReader(new InputStreamReader(System.in));
+        Scanner in = new Scanner(System.in);
 
         //Create client socket, connect to server
-        Socket clientSocket = new Socket(hostName,SOCKET_PORT);
+        Socket socket = new Socket(HOST_NAME,SOCKET_PORT);
 
-        //Create output stream attached to socket
-        DataOutputStream outToServer
-                = new DataOutputStream(clientSocket.getOutputStream());
+        //get input from socket
+        Scanner sIn = new Scanner(socket.getInputStream());
 
-        //Create input stream attach to socket
-        BufferedReader inFromServer
-                = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        //send input to socket
+        PrintStream print = new PrintStream(socket.getOutputStream());
 
+        System.out.println();
+        while(!socket.isClosed()){
 
-        //GEt input
-        String in = inFromServer.readLine();
+        }
 
-        //Send line to server
-        outToServer.writeBytes(in + "\n");
-
-        //Read line from server
-        String inServer = inFromServer.readLine();
-
-        System.out.println("FROM SERVER " + inServer);
-
-        clientSocket.close();
-
+        socket.close();
     }
 }
