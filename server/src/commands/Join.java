@@ -2,10 +2,13 @@ package commands;
 
 import exceptions.ExceptionEnum;
 
-public class Bye implements Command{
+/**
+ * Created by jcvar on 2/22/2018.
+ */
+public class Join implements Command{
+
     @Override
     public String execute(int[] val) {
-        return ExceptionEnum.EXIT_EXCEPTION.getValue() + "";
-
+        return "Hello!";
     }
 }

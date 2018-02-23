@@ -5,13 +5,16 @@ import exceptions.ExceptionEnum;
 
 public enum CommandEnum {
 
+
+
     ADD(new Add()),
     SUBTRACT(new Subtract()),
     MULTIPLY(new Multiply()),
     BYE(new Bye()),
 
-    JOIN(new Empty()),
-    TERMINATE(new Empty());
+    JOIN(new Join()),
+    TERMINATE(new Terminate());
+
 
     public static final int MIN_PARAM = 3;
     public static final int MAX_PARAM = 5;
@@ -22,7 +25,7 @@ public enum CommandEnum {
         command = c;
     }
 
-    public static String Execute(String input){
+    public static String execute(String input){
         String[] in = null;
 
         //CHECK IF INPUT IS GOOD
@@ -35,10 +38,16 @@ public enum CommandEnum {
             return "-6";
         }
 
-        int a = Integer.parseInt(in[1]);
-        int b = Integer.parseInt(in[2]);
+
+        int[] val = new int[in.length-1];
+
+        for(int i =0; i < val.length; i++){
+            val[i] = Integer.parseInt(in[i+1]);
+        }
+
+
         CommandEnum e = getCommandEnumFrom(in[0]);
-        String output = e.command.execute(a,b);
+        String output = e.command.execute(val);
 
         return output;
     }
@@ -60,6 +69,13 @@ public enum CommandEnum {
             throw new CommandException(ExceptionEnum.INCORRECT_COMMAND_EXCEPTION);
         }
 
+        if(isSpecificCommandENum(in[0],BYE)){
+            return in;
+        }
+        if(isSpecificCommandENum(in[0],TERMINATE)){
+            return in;
+        }
+
         if(in.length < MIN_PARAM){
             throw new CommandException(ExceptionEnum.LESS_INPUT_EXCEPTION);
         }
@@ -77,13 +93,12 @@ public enum CommandEnum {
             }
         }
 
-
-
         return in;
     }
 
 
     public static boolean isSpecificCommandENum(String s, CommandEnum e){
+        //TODO: check to lower case
         s = s.trim().toLowerCase();
 
         String name = e.name();

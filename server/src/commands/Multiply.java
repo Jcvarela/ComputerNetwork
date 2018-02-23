@@ -2,9 +2,16 @@ package commands;
 
 public class Multiply implements Command {
     @Override
-    public String execute(int a, int b) {
+    public String execute(int[] val){
+        if(val.length == 0){
+            return "0";
+        }
 
-        long value = (long)a * (long)b;
-        return value + "";
+        int output = val[0];
+
+        for(int i =1; i < val.length; i++){
+            output *= val[i];
+        }
+        return output + "";
     }
 }

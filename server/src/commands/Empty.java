@@ -2,7 +2,7 @@ package commands;
 
 public class Empty implements Command {
     @Override
-    public String execute(int a, int b) {
+    public String execute(int[] val) {
         return "Nothing to execute";
     }
 }
