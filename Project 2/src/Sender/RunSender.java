@@ -17,6 +17,7 @@ public class RunSender {
     private static Scanner  sIn;
     private static String[] info;
 
+    private static int pos = 1;
 
     public static void main(String[] args) {
 
@@ -61,7 +62,7 @@ public class RunSender {
             } catch(IOException e){
                 count++;
                 if(count < 4){
-                    Thread.sleep(2000l);
+                   // Thread.sleep(2000l);
                     continue;
                 }
                 throw e;
@@ -74,21 +75,28 @@ public class RunSender {
         try {
 
             for(int i =0; i < data.length; i++){
-                System.out.print("Waiting ");
+                System.out.print("Waiting ACK" + (i%2) + ", "+ pos++);
 
                 send(i%2 == 1,i+1,data[i]);
 
                 String input = getInput();
 
                 if(input.equals("0")){
-                    System.out.println("ACK 0, " + (i+1) + ", DROP, resend Packet()");
+                    System.out.println(",\t DROP,\t  resend Packet"+ ((i)%2));
                     i--;
-                }else {
-                    System.out.println("ACK 1, " + (i+1) + ", send Packet()");
+                }else if(input.equals("2")){
+                    System.out.println(",\t CORRUPT, resend Packet"+ ((i)%2));
+                    i--;
+                }
+                    else {
+                    if(i+1 == data.length){
+                        System.out.println(",\t ACK"+(i%2)+",\t  no more packets to send");
+                    }else {
+                    System.out.println(",\t ACK"+(i%2)+",\t  send Packet" + ((i+1)%2));
+                    }
                 }
             }
 
-            System.out.println("No more packets to send");
             PrintStream sout = new PrintStream(socket.getOutputStream());
             sout.println("-1");
         }catch(Exception e){

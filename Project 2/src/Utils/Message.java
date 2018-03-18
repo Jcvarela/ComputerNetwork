@@ -1,7 +1,5 @@
 package Utils;
 
-import com.sun.xml.internal.ws.developer.MemberSubmissionEndpointReference;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -103,11 +101,8 @@ public class Message {
         return output.trim();
     }
 
-//    public static void main(String[] args) {
-//        System.out.println(true);
-//        Message m = new Message(true,(byte)4,555,"Hello");
-//        System.out.println(m);
-//
-//        System.out.println(new Message(m.getByte()));
-//    }
+
+    public static void main(String[] args) {
+        System.out.println(0%2);
+    }
 }

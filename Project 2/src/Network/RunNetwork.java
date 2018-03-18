@@ -1,7 +1,7 @@
 package Network;
 
 import Utils.Message;
-import sun.awt.image.ImageWatched;
+import org.omg.CORBA.INTERNAL;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -9,7 +9,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Queue;
 
 public class RunNetwork {
@@ -51,18 +50,23 @@ public class RunNetwork {
         while (running) {
             try {
                 update();
-                Thread.sleep(500l);
+               Thread.sleep(50l);
             } catch (Exception e) {
 
             }
         }
+
         System.out.println("\n Stop Network");
         loop.stop();
         removeAllClients();
     }
 
     private static void update() throws Exception{
+        if(clients.size() < 2){
+            return;
+        }
         Iterator<Client> it = clients.iterator();
+
         while (it.hasNext()){
             Client c = it.next();
             Queue<String> in = c.input;
@@ -70,12 +74,16 @@ public class RunNetwork {
             while(in.size() > 0){
                 try {
                     String text = in.remove();
-
-                    if(text.equals("0") || text.equals("1")){
-                        System.out.println("ACK" + text + ", " + (text.equals("1")?"PASS":"DROP"));
-                        sendInfoToOther(text,c);
+                    if(text.equals("1") || text.equals("2") || text.equals("3") || text.equals("4")){
+                        int v = Integer.parseInt(text);
+                        System.out.println("Received: ACK" + ((v<3)?0:1) + ", " + ((v%2 == 1)?"PASS":"DROP"));
+                        String send = ((v%2 == 1)?1:2) + "";
+                        // 1 -> PASS
+                        //2 -> CORRUPTED
+                        sendInfoToOther(send,c);
                         continue;
                     }
+
                     if(text.equals("-1")){
                         sendInfoToOther(text,c);
                         stopServer();
@@ -83,21 +91,20 @@ public class RunNetwork {
                     }
 
                     Message m = new Message(text);
-
-
+                    int val = m.sequenceNo?1:0;
                     //random here
                     int r = (int)(Math.random()*4);
                     if(r == 0) { //DROP
-                        System.out.println("Packet, " + m.id + ", DROP");
+                        System.out.println("Received: Packet"+val+", " + m.id + ", DROP");
 
-                        c.send("0"); // 0 fail, 1 pass
+                        c.send("0"); // 0 drop
 
                     } else if(r == 1){ //CORRUPT
-                        System.out.println("Packet, " + m.id + ", CORRUPT");
+                        System.out.println("Received: Packet"+val+", " + m.id + ", CORRUPT");
                         m.checkSum++;
                         sendInfoToOther(m.getByte(),c);
                     }else { //PASS
-                        System.out.println("Packet, " + m.id + ", PASS");
+                        System.out.println("Received: Packet"+val+", " + m.id + ", PASS");
                         sendInfoToOther(m.getByte(),c);
                     }
 

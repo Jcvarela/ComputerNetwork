@@ -16,6 +16,9 @@ public class RunReceiver {
     private static Scanner  sIn;
     private static boolean isRunning = true;
 
+    private static String message = "";
+    private static int count = 1;
+
     public static void main(String[] args) {
         if(args.length < 2){
             System.err.println("Require URl and port_number to run program");
@@ -69,7 +72,7 @@ public class RunReceiver {
                 String input = getInput();
 
 
-                if(input.equals("0") || input.equals("1")){
+                if(input.equals("0")|| input.equals("1") || input.equals("2") || input.equals("3") || input.equals("4")){
                     continue;
                 }
                 if(input.equals("-1")){
@@ -78,18 +81,25 @@ public class RunReceiver {
 
                 Message m = new Message(input);
 
-                System.out.print((m.sequenceNo?1:0) + ", " + m.id +", " + m.checkSum +", " + m.packetContent + ", ");
+                System.out.print((m.sequenceNo?1:0) + ", " + count++ +", " + m.checkSum +", " + m.packetContent + ", ");
 
                 if(checkInput(m)){
-                    System.out.println("ACK 1");
-                    send("1");
+                    message += m.packetContent + " ";
+                    System.out.println("ACK" + (m.sequenceNo?1:0));
+                    send(((m.sequenceNo?1:0)*2 + 1) + "");
+                    String n = m.packetContent;
+                    if(n.trim().charAt(n.length() -1) == '.'){
+                        break;
+                    }
                 }
                 else {
-                    System.out.println("ACK 0");
-                    send("0");
+                    System.out.println("ACK" +(m.sequenceNo?0:1));
+                    send(((m.sequenceNo?0:1)*2 + 2) + "");
                 }
                 System.out.print("Waiting ");
             }
+
+            System.out.println("\n Message: " + message);
 
             System.out.println("\n Stop receiver.");
 
@@ -110,8 +120,6 @@ public class RunReceiver {
             }
             return count == m.checkSum;
         }catch(Exception e){
-            //TODO:remove this
-            e.printStackTrace();
             return false;
         }
     }
