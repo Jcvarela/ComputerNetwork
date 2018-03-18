@@ -2,8 +2,7 @@ package Sender;
 
 import Utils.Message;
 
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -16,6 +15,8 @@ public class RunSender {
     private static boolean isRunning = true;
     private static Socket socket;
     private static Scanner  sIn;
+    private static String[] info;
+
 
     public static void main(String[] args) {
 
@@ -25,9 +26,15 @@ public class RunSender {
         }
 
         try {
+            readTextFile(args[2]);
+        } catch (IOException e) {
+            System.out.println("Error reading file");
+            System.exit(0);
+        }
+
+        try {
             URL = args[0];
             port_number = Integer.parseInt(args[1]);
-            MessageFileName = args[2];
 
             startClient();
         } catch (IOException e) {
@@ -61,32 +68,34 @@ public class RunSender {
             }
         }
 
-        //get input from socket
         sIn = new Scanner(socket.getInputStream());
-
-        //send info through socket
-
 
         String data[] = info;
         try {
 
             for(int i =0; i < data.length; i++){
-                send(true,i+1,data[i]);
-                System.out.println("sending " + data[i]);
+                System.out.print("Waiting ");
+
+                send(i%2 == 1,i+1,data[i]);
+
                 String input = getInput();
 
                 if(input.equals("0")){
-                    //it fail
+                    System.out.println("ACK 0, " + (i+1) + ", DROP, resend Packet()");
                     i--;
+                }else {
+                    System.out.println("ACK 1, " + (i+1) + ", send Packet()");
                 }
-                System.out.println("I got " + input);
             }
 
+            System.out.println("No more packets to send");
+            PrintStream sout = new PrintStream(socket.getOutputStream());
+            sout.println("-1");
         }catch(Exception e){
             System.out.println("Error sending packets");
             e.printStackTrace();
         }
-
+        System.out.println("\n Stop Sender");
         socket.close();
     }
 
@@ -103,9 +112,19 @@ public class RunSender {
     }
 
     public static String getInput(){
-        return sIn.next();
+        return sIn.nextLine();
     }
 
-    private static String[] info = "aaaaa bbb cc ffff ddd pppp eeee zzzzzzzzzzZ".trim().split(" ");
+    private static void readTextFile(String fileName) throws IOException {
+        System.out.println(fileName);
 
+        File file = new File(fileName);
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        String st;
+        String output = "";
+        while ((st = br.readLine()) != null){
+            output += st + " ";
+        }
+        info = output.trim().split(" ");
+    }
 }

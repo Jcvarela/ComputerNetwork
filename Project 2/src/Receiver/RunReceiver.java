@@ -63,20 +63,35 @@ public class RunReceiver {
         sIn = new Scanner(socket.getInputStream());
 
         try {
-
+            System.out.print("Waiting ");
             while(isRunning){
+
                 String input = getInput();
-                System.out.println(input);
+
+
+                if(input.equals("0") || input.equals("1")){
+                    continue;
+                }
+                if(input.equals("-1")){
+                    break;
+                }
+
                 Message m = new Message(input);
-                System.out.println("I got " + input);
+
+                System.out.print((m.sequenceNo?1:0) + ", " + m.id +", " + m.checkSum +", " + m.packetContent + ", ");
+
                 if(checkInput(m)){
+                    System.out.println("ACK 1");
                     send("1");
                 }
                 else {
+                    System.out.println("ACK 0");
                     send("0");
                 }
+                System.out.print("Waiting ");
             }
 
+            System.out.println("\n Stop receiver.");
 
         }catch(Exception e){
             System.out.println("Error sending packets");
@@ -88,10 +103,17 @@ public class RunReceiver {
 
     public static boolean checkInput(Message m){
         int count = 0;
-        for (char i: m.packetContent.toCharArray()){
-            count += i;
+
+        try {
+            for (char i : m.packetContent.toCharArray()) {
+                count += i;
+            }
+            return count == m.checkSum;
+        }catch(Exception e){
+            //TODO:remove this
+            e.printStackTrace();
+            return false;
         }
-        return count == m.checkSum;
     }
 
     public static void send(String text) throws IOException {
@@ -100,6 +122,6 @@ public class RunReceiver {
     }
 
     public static String getInput(){
-        return sIn.next();
+        return sIn.nextLine();
     }
 }

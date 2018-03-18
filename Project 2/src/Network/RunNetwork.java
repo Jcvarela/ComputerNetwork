@@ -56,7 +56,7 @@ public class RunNetwork {
 
             }
         }
-
+        System.out.println("\n Stop Network");
         loop.stop();
         removeAllClients();
     }
@@ -72,21 +72,32 @@ public class RunNetwork {
                     String text = in.remove();
 
                     if(text.equals("0") || text.equals("1")){
-                        sendInfoToOther(text + "HERE1",c);
+                        System.out.println("ACK" + text + ", " + (text.equals("1")?"PASS":"DROP"));
+                        sendInfoToOther(text,c);
+                        continue;
+                    }
+                    if(text.equals("-1")){
+                        sendInfoToOther(text,c);
+                        stopServer();
+                        break;
                     }
 
                     Message m = new Message(text);
-                    System.out.println(m);
 
 
                     //random here
                     int r = (int)(Math.random()*4);
                     if(r == 0) { //DROP
+                        System.out.println("Packet, " + m.id + ", DROP");
+
                         c.send("0"); // 0 fail, 1 pass
+
                     } else if(r == 1){ //CORRUPT
+                        System.out.println("Packet, " + m.id + ", CORRUPT");
                         m.checkSum++;
                         sendInfoToOther(m.getByte(),c);
                     }else { //PASS
+                        System.out.println("Packet, " + m.id + ", PASS");
                         sendInfoToOther(m.getByte(),c);
                     }
 
@@ -104,10 +115,11 @@ public class RunNetwork {
         while (it2.hasNext()){
             Client temp = it2.next();
             if(temp != c){
-                temp.send(info + "TESTING");
-                break;
+                temp.send(info);
+                return;
             }
         }
+        c.send("0");
     }
 
     private static Thread loopClients(ServerSocket serverSocket) {
@@ -148,8 +160,9 @@ public class RunNetwork {
     public static void removeClient(Client clientLeft) {
         clients.remove(clientLeft);
 
-        System.out.println("==========================");
-        System.out.println("Connection left");
+       // System.out.println("==========================");
+        //System.out.println("Connection left");
+        stopServer();
     }
 
 
@@ -157,10 +170,14 @@ public class RunNetwork {
         Iterator<Client> it = clients.iterator();
         while (it.hasNext()) {
             Client client = it.next();
+
+            try {
+                client.send("-1");
+            } catch (IOException e) {
+
+            }
             client.disconnect();
         }
-
-        System.out.println("Server down");
     }
 
     public static void stopServer() {

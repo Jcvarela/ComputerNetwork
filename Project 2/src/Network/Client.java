@@ -13,11 +13,13 @@ class Client extends Thread {
     private Socket socket;
 
     public Queue<String> input;
+    PrintStream sout;
 
     public Client(Socket socket) {
         this.socket = socket;
 
         input = new LinkedList<>();
+
     }
 
     public Socket getSocket() {
@@ -29,8 +31,8 @@ class Client extends Thread {
         try {
             BufferedReader in;
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            sout = new PrintStream(socket.getOutputStream());
 
-            //Queue<String> data = read.data;
             String text = "";
             while (text != null) {
                 text = in.readLine();
@@ -49,7 +51,6 @@ class Client extends Thread {
     }
 
     public void send(String info) throws IOException{
-        PrintStream sout = new PrintStream(socket.getOutputStream());
         sout.println(info);
     }
 
