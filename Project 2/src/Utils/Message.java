@@ -1,5 +1,7 @@
 package Utils;
 
+import com.sun.xml.internal.ws.developer.MemberSubmissionEndpointReference;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -22,11 +24,35 @@ public class Message {
     }
 
     public Message(byte[] bytes) {
+       setUpMessage(bytes);
+    }
+
+    public Message(String message){
+        String[] split = message.split(" ");
+        byte[] bytes = new byte[split.length];
+        try {
+            for (int i = 0; i < bytes.length; i++) {
+                bytes[i] = Byte.parseByte(split[i]);
+            }
+            setUpMessage(bytes);
+        }catch(Exception e){
+           setUpMessage();
+        }
+    }
+
+    public  void setUpMessage(){
+        this.sequenceNo = false;
+        this.id = -1;
+        this.checkSum = -1;
+        this.packetContent = null;
+    }
+
+    public void setUpMessage(byte[] bytes){
         sequenceNo = (bytes[0] == 1);
         id = bytes[1];
 
-         checkSum = bytes[5] & 0xFF | (bytes[4] & 0xFF) << 8 |
-                 (bytes[3] & 0xFF) << 16 | (bytes[2] & 0xFF) << 24;
+        checkSum = bytes[5] & 0xFF | (bytes[4] & 0xFF) << 8 |
+                (bytes[3] & 0xFF) << 16 | (bytes[2] & 0xFF) << 24;
 
         byte[] text = Arrays.copyOfRange(bytes,6,bytes.length);
         packetContent = new String(text, UTF_8);
@@ -55,13 +81,33 @@ public class Message {
 
     @Override
     public String toString(){
-        String output = "";
-        output += (sequenceNo)?"True": "False";
-        output += " || " + id;
-        output += " || " + checkSum;
-        output += " || " + packetContent;
+        String output ="";
+
+        output += this.sequenceNo + " || ";
+        output += this.id + " || ";
+        output += this.checkSum + " || ";
+        output += this.packetContent;
 
         return output;
     }
 
+    public String getByte(){
+        byte[] m = getByteMessage();
+
+        String output = "";
+
+        for (byte g :m ) {
+            output += g + " ";
+        }
+
+        return output.trim();
+    }
+
+//    public static void main(String[] args) {
+//        System.out.println(true);
+//        Message m = new Message(true,(byte)4,555,"Hello");
+//        System.out.println(m);
+//
+//        System.out.println(new Message(m.getByte()));
+//    }
 }
